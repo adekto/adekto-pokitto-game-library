@@ -1,92 +1,8 @@
 #include "Pokitto.h"
-
+#include <vector>
+#include "sprites.h"
 Pokitto::Core game;
 
-// TODO adekto: will put this in a header file soon
-const uint8_t background[][66] = {
- {
-     16,14,
-    0,0,0,0,0,0,0,0,0,32,0,0,0,128,0,0,
-0,0,0,0,0,0,0,0,0,0,32,0,0,0,8,0,
-0,0,0,0,2,0,0,0,8,0,0,0,0,0,2,0,
-0,0,0,128,0,0,0,0,0,0,0,0,0,0,0,0,
- },
-  {
-     16,14,
-     51,51,51,48,204,204,204,192,51,51,51,48,204,204,204,192,
-51,51,51,48,204,204,204,192,51,51,51,48,204,204,204,192,
-51,51,51,48,204,204,204,192,51,51,51,48,204,204,204,192,
-51,51,51,48,204,204,204,192,0,0,0,0,0,0,0,0,
- },
-  {
-     16,14,
-     255,255,252,240,255,255,252,240,255,255,252,240,0,0,3,0,
-255,207,255,240,255,207,255,240,255,207,255,240,0,48,3,0,
-255,255,252,240,255,255,252,240,255,255,252,240,0,192,3,0,
-255,63,255,240,255,63,255,240,0,0,0,0,0,0,0,0,
- },
-};
-
-const uint8_t sprites[][66] = {
- {
-     16,14,
-
-0,0,0,0,10,170,170,0,42,170,170,128,42,170,170,128,
-10,170,170,128,42,170,170,128,42,170,170,128,42,170,168,128,
-42,170,168,128,42,170,170,128,42,170,170,128,10,170,170,128,
-42,170,170,128,42,170,170,128,0,0,0,0,0,0,0,0,
- },
-  {
-     16,14,
-  63,255,255,240,48,0,0,48,48,0,0,48,48,0,12,240,
-48,0,3,48,48,12,204,240,48,3,3,48,48,12,204,240,
-60,195,3,48,51,12,204,240,60,195,3,48,51,12,204,240,
-60,195,3,48,63,255,255,240,0,0,0,0,0,0,0,0,
- },
-  {
-     16,14,
-     0,0,0,0,207,0,0,0,51,0,0,0,204,60,192,0,
-51,51,0,0,204,12,204,240,243,51,3,48,0,12,204,192,
-255,51,195,48,255,0,12,192,255,255,207,48,255,255,192,0,
-255,255,255,240,255,255,255,240,0,0,0,0,0,0,0,0,
- },
-  {    16,14,
-    0,0,0,0,16,4,0,0,16,4,0,0,16,17,80,0,
-16,85,84,0,16,85,85,0,17,69,81,64,85,1,64,64,
-16,5,80,64,0,21,80,0,0,80,80,0,0,64,16,0,
-0,64,20,0,0,64,4,0,0,0,0,0,0,0,0,0,
- },
- {     16,14,
-    16,0,0,0,68,0,64,0,68,0,64,0,16,1,20,0,
-16,5,85,0,4,21,85,64,5,85,84,80,5,80,0,16,
-1,1,20,0,1,1,21,0,0,65,85,0,0,65,85,64,
-0,17,85,64,0,17,0,16,0,0,0,0,0,0,0,0,
- },
-  {     16,14,
-    0,0,0,0,1,85,85,0,5,85,84,64,5,85,80,64,
-4,64,17,0,5,85,80,0,4,16,16,0,5,85,80,0,
-4,0,80,0,5,85,81,0,4,5,80,64,5,85,84,64,
-1,85,85,0,0,0,0,0,0,0,0,0,0,0,0,0,
- },
-   {     16,14,
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-2,160,0,0,8,8,0,0,8,0,0,0,32,0,0,0,
-34,170,0,0,42,170,168,0,10,170,170,0,10,170,170,128,
-10,2,32,0,8,136,8,0,0,0,0,0,0,0,0,0,
- },
-    {     16,14,
-0,0,2,128,0,0,8,32,0,0,2,32,0,0,0,32,
-0,42,128,32,2,130,0,128,0,42,128,128,2,128,2,0,
-8,168,130,0,8,168,40,0,0,170,8,0,0,130,32,0,
-2,2,32,0,8,2,128,0,0,0,0,0,0,0,0,0,
- },
-     {     16,14,
-0,0,0,0,0,0,2,0,0,0,0,128,0,0,0,128,
-0,10,160,128,0,160,128,128,8,10,160,128,42,32,0,128,
-34,42,34,0,34,42,10,128,42,42,130,0,8,32,128,0,
-0,128,32,0,2,0,32,0,0,0,0,0,0,0,0,0,
- },
-};
 
 uint8_t dungeon[20][20]={
     {1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1},
@@ -110,8 +26,55 @@ uint8_t dungeon[20][20]={
     {1,0,0,0,0, 0,0,0,0,0, 1,0,0,0,0, 0,0,0,0,1},
     {1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1},
 };
+struct entity{
+    uint8_t x;
+    uint8_t y;
+    int8_t hp;
+    uint8_t id;
+};
 
-//turned off atm since its crap
+#define ID_SKELETON_MAGE     9
+#define ID_SKELETON_ARCHER   10
+#define ID_SKELETON_WARIOR   11
+#define ID_BLOOD_SKELETON    12
+#define ID_BLOOD             13
+#define ID_RAT               14
+#define ID_SCROLL            15
+#define ID_CHEST             16
+#define ID_CHEST_OPEN        17
+#define ID_MIMIC             18
+#define ID_COIN              19
+#define ID_COINS             20
+#define ID_BAG               21
+
+int entities_size = 2;
+std::vector<entity> entities(entities_size);
+
+
+void entitiesLogic(int playerX, int playerY){
+    for(int i=0; i<entities.size(); ++i){
+
+        switch(entities[i].id){
+        case ID_CHEST:
+
+
+            break;
+        case ID_CHEST_OPEN:
+
+
+            break;
+        case ID_MIMIC:
+            if(entities[i].x > playerX) entities[i].x-=1;
+            if(entities[i].x < playerX) entities[i].x+=1;
+            if(entities[i].y > playerY) entities[i].y-=1;
+            if(entities[i].y < playerY) entities[i].y+=1;
+            break;
+        default:
+            printf("unknown entety %i\n", entities[i].id);
+            break;
+        }
+    }
+}
 void mapgen(uint8_t depth, uint8_t x,uint8_t y,uint8_t w,uint8_t h){
     //needs better rng limits
     uint8_t rx = random(y,h);
@@ -136,45 +99,69 @@ void mapgen(uint8_t depth, uint8_t x,uint8_t y,uint8_t w,uint8_t h){
         mapgen(depth+1,x,rx,ry,h);
     }
 }
+void drawHP(int hp){
+    //gui
+        game.display.drawBitmap(212,0,UI1);
+        game.display.drawFastVLine(219,3,158);
+        game.display.drawFastVLine(211,3,158);
+        game.display.drawBitmap(212,162,UI2);
+        int UI_hp = hp * 0.78;
 
+        if(hp >= 0){
+            for(int i = 0; i < UI_hp; i++){
+                game.display.drawBitmap(213,159-(i*2),UI4);
+            }
+            game.display.drawBitmap(213,160-((UI_hp+1)*2),UI3);
+            game.display.drawBitmap(213,161,UI5);
+        }
+}
 int main () {
-game.begin();
 
+game.begin();
 //mapgen(0,0,0,20,20);
 game.display.loadRGBPalette(paletteCGA);
-//game.display.setFont(fontAdventurer); //too big
+//game.display.setFont(fontAdventurer);
 //game.display.persistence = true;
 game.display.setInvisibleColor(0);
-
 int playerX = 2;
 int playerY = 2;
+int playerHP = 100;
+
+entities[0].id = ID_CHEST;
+entities[0].x = 5;
+entities[0].y = 3;
+entities[1].id = ID_MIMIC;
+entities[1].x = 15;
+entities[1].y = 15;
+
 
 while (game.isRunning()) {
 
     if (game.update()) {
-
         if (game.buttons.repeat(BTN_UP,4)){
             if (!dungeon[playerY-1][playerX]){
                 playerY --;
+                entitiesLogic( playerX, playerY);
             }
         }
         if (game.buttons.repeat(BTN_DOWN,4)){
             if (!dungeon[playerY+1][playerX]){
                 playerY ++;
+                entitiesLogic( playerX, playerY);
             }
         }
         if (game.buttons.repeat(BTN_LEFT,4)){
             if (!dungeon[playerY][playerX-1]){
                 playerX --;
+                entitiesLogic( playerX, playerY);
             }
         }
         if (game.buttons.repeat(BTN_RIGHT,4)){
             if (!dungeon[playerY][playerX+1]){
                 playerX ++;
+                entitiesLogic( playerX, playerY);
             }
         }
-        
-        //map draw
         for(int x =playerX-7; x<playerX+8; x++){ //7
             for(int y =playerY-6; y<playerY+6; y++){
                 if(x >= 0 && y >= 0 && x <20 && y < 20){
@@ -182,12 +169,20 @@ while (game.isRunning()) {
                 }
             }
         }
-        
-        //gui
+
         game.display.setCursor(0,168);
         game.display.color = 1;
         game.display.print("OMG! this font just fits on the screen");
         game.display.drawBitmap(14*(7),14*(6),sprites[3]);
+
+
+        drawHP(playerHP);
+
+        for(int i=0; i<entities.size(); ++i){
+            game.display.color = 0; //remove before release
+            game.display.fillRect(14*(entities[i].x-playerX+7),14*(entities[i].y-playerY+6),14,14);//remove and fix before release
+            game.display.drawBitmap(14*(entities[i].x-playerX+7),14*(entities[i].y-playerY+6),sprites[entities[i].id]);
+        }
     }
 
 }
