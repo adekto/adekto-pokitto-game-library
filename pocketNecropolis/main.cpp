@@ -47,33 +47,69 @@ struct entity{
 #define ID_COINS             20
 #define ID_BAG               21
 
+//globals
 int entities_size = 2;
 std::vector<entity> entities(entities_size);
+char printer[40] = "";
+int playerGold = 0;
+int playerHP = 100;
 
 
-void entitiesLogic(int playerX, int playerY){
+bool colide(int id, int x, int y, bool c){
+    if (entities[id].x == x && entities[id].y == y) return false;
+    else return c;
+}
+void removeEntity(int i){
+
+        using std::swap;
+         std::swap(entities[i], entities.back());
+    entities.pop_back();
+
+}
+bool entitiesLogic(int playerX, int playerY){
+    bool nocolide = true;
     for(int i=0; i<entities.size(); ++i){
 
         switch(entities[i].id){
         case ID_CHEST:
-
-
+            nocolide = colide(i,playerX,playerY,nocolide); //its wierd but works
+            if(!colide(i,playerX,playerY,true)){
+                    entities[i].id = ID_CHEST_OPEN;
+                    sprintf(printer,"open chest, taken %i gold",  entities[i].hp);
+                    playerGold += entities[i].hp;
+                    entities[i].hp = 0;
+            }
             break;
         case ID_CHEST_OPEN:
 
 
             break;
         case ID_MIMIC:
-            if(entities[i].x > playerX) entities[i].x-=1;
-            if(entities[i].x < playerX) entities[i].x+=1;
-            if(entities[i].y > playerY) entities[i].y-=1;
-            if(entities[i].y < playerY) entities[i].y+=1;
+            nocolide = colide(i,playerX,playerY,nocolide); //its wierd but works
+            if(entities[i].x > playerX && colide(i,playerX+1,playerY,true)) entities[i].x-=1;
+            else if(!colide(i,playerX+1,playerY,true)) playerHP -=10;
+
+            if(entities[i].x < playerX && colide(i,playerX-1,playerY,true)) entities[i].x+=1;
+            else if(!colide(i,playerX-1,playerY,true)) playerHP -=10;
+
+            if(entities[i].y > playerY && colide(i,playerX,playerY+1,true)) entities[i].y-=1;
+            else if(!colide(i,playerX,playerY+1,true)) playerHP -=10;
+
+            if(entities[i].y < playerY && colide(i,playerX,playerY-1,true)) entities[i].y+=1;
+            else if(!colide(i,playerX,playerY-1,true)) playerHP -=10;
+
+            if(!colide(i,playerX,playerY,true)){
+                entities[i].hp -= 1;
+                sprintf(printer,"hit mimic, hp: %i",  entities[i].hp);
+                if(entities[i].hp == 0) removeEntity(i);
+            }
             break;
         default:
             printf("unknown entety %i\n", entities[i].id);
             break;
         }
     }
+    return nocolide;
 }
 void mapgen(uint8_t depth, uint8_t x,uint8_t y,uint8_t w,uint8_t h){
     //needs better rng limits
@@ -125,14 +161,16 @@ game.display.loadRGBPalette(paletteCGA);
 game.display.setInvisibleColor(0);
 int playerX = 2;
 int playerY = 2;
-int playerHP = 100;
+
 
 entities[0].id = ID_CHEST;
 entities[0].x = 5;
 entities[0].y = 3;
+entities[0].hp = 100;
 entities[1].id = ID_MIMIC;
 entities[1].x = 15;
 entities[1].y = 15;
+entities[1].hp = 10;
 
 
 while (game.isRunning()) {
@@ -140,26 +178,22 @@ while (game.isRunning()) {
     if (game.update()) {
         if (game.buttons.repeat(BTN_UP,4)){
             if (!dungeon[playerY-1][playerX]){
-                playerY --;
-                entitiesLogic( playerX, playerY);
+                if(entitiesLogic( playerX, playerY-1)) playerY --;
             }
         }
         if (game.buttons.repeat(BTN_DOWN,4)){
             if (!dungeon[playerY+1][playerX]){
-                playerY ++;
-                entitiesLogic( playerX, playerY);
+                if(entitiesLogic( playerX, playerY+1)) playerY ++;
             }
         }
         if (game.buttons.repeat(BTN_LEFT,4)){
             if (!dungeon[playerY][playerX-1]){
-                playerX --;
-                entitiesLogic( playerX, playerY);
+                if(entitiesLogic( playerX-1, playerY)) playerX --;
             }
         }
         if (game.buttons.repeat(BTN_RIGHT,4)){
             if (!dungeon[playerY][playerX+1]){
-                playerX ++;
-                entitiesLogic( playerX, playerY);
+                if(entitiesLogic( playerX+1, playerY)) playerX ++;
             }
         }
         for(int x =playerX-7; x<playerX+8; x++){ //7
@@ -172,8 +206,8 @@ while (game.isRunning()) {
 
         game.display.setCursor(0,168);
         game.display.color = 1;
-        game.display.print("OMG! this font just fits on the screen");
-        game.display.drawBitmap(14*(7),14*(6),sprites[3]);
+        game.display.print(printer);
+
 
 
         drawHP(playerHP);
@@ -183,6 +217,8 @@ while (game.isRunning()) {
             game.display.fillRect(14*(entities[i].x-playerX+7),14*(entities[i].y-playerY+6),14,14);//remove and fix before release
             game.display.drawBitmap(14*(entities[i].x-playerX+7),14*(entities[i].y-playerY+6),sprites[entities[i].id]);
         }
+
+        game.display.drawBitmap(14*(7),14*(6),sprites[3]);
     }
 
 }
